@@ -29,8 +29,10 @@ from urllib.request import urlopen
 #set our engine to Pyttsx3 which is used for text to speech
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[1].id) #voices[0].id for male voice
-
+#engine.setProperty('voice', voices[0].id) #voices[0].id for female voice
+ru_voice_id = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_RU-RU_IRINA_11.0"
+# Use female Russian voice
+engine.setProperty('voice', ru_voice_id)
 
 def speak(audio):
     engine.say(audio)
@@ -40,23 +42,23 @@ def speak(audio):
 def wishMe():
     hour = int(datetime.datetime.now().hour)
     if hour >= 0 and hour < 12:
-        speak("Good Morning Sir !")
+        speak("Jutro !")
 
     elif hour >= 12 and hour < 18:
-        speak("Good Afternoon Sir !")
+        speak("Ugodno popodne !")
 
     else:
-        speak("Good Evening Sir !")
+        speak("Dobra večer !")
 
-    assname = ("Roki 1 point o")
-    speak("I am your Assistant")
+    assname = ("Sunčica")
+    speak("Ja sam tvoj asistent")
     speak(assname)
 
 
 def usrname():
-    speak("What should i call you sir")
+    speak("Kako da tebe zovem")
     uname = takeCommand()
-    speak("Welcome Mister")
+    speak("Pozdravljen budi")
     speak(uname)
     columns = shutil.get_terminal_size().columns
 
@@ -64,7 +66,7 @@ def usrname():
     print("Welcome Mr.", uname.center(columns))
     print("#####################".center(columns))
 
-    speak("How can i Help you, Sir")
+    speak("Kako da ti pomognem")
 
 
 def takeCommand():
@@ -78,15 +80,16 @@ def takeCommand():
 
     try:
         print("Recognizing...")
-        query = r.recognize_google(audio, language='en-in')
-        print(f"User said: {query}\n")
+        query_eng = r.recognize_google(audio, language='en-in')
+        query_hrv = r.recognize_google(audio, language='hr_HR')
+        print(f"User said: {query_hrv}\n")
 
     except Exception as e:
         print(e)
         print("Unable to Recognizing your voice.")
         return "None"
 
-    return query
+    return query_hrv
 
 
 def sendEmail(to, content):
@@ -137,13 +140,18 @@ if __name__ == '__main__':
             speak("Here you go to Stack Over flow.Happy coding")
             webbrowser.open("stackoverflow.com")
 
-        elif 'play music' in query or "play song" in query:
-            speak("Here you go with music")
-            # music_dir = "G:\\Song"
-            music_dir = "C:\\Users\\GAURAV\\Music"
-            songs = os.listdir(music_dir)
-            print(songs)
-            random = os.startfile(os.path.join(music_dir, songs[1]))
+        elif "play" in query:
+            play_index = query.find("play")
+            song_name = query[play_index:]
+            speak(f"Here you go with {song_name}")
+
+            """elif 'play music' in query or "play song" in query:
+                speak("Here you go with music")
+                # music_dir = "G:\\Song"
+                music_dir = "C:\\Users\\GAURAV\\Music"
+                songs = os.listdir(music_dir)
+                print(songs)
+                random = os.startfile(os.path.join(music_dir, songs[1]))"""
 
         elif 'the time' in query:
             strTime = datetime.datetime.now().strftime("% H:% M:% S")
@@ -434,3 +442,7 @@ if __name__ == '__main__':
             # elif "" in query:
         # Command go here
         # For adding more commands
+
+        if "exit" in str(query) or "bye" in str(query) or "sleep" in str(query):
+            speak("Ok bye!")
+            break
